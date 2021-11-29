@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +15,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('startingPage');
 });
+
+Route::get('/info', function () {
+    return view('infoPage');
+});
+
+Route::resource( name: 'hobby', controller: 'HobbyController');
+
+Route::resource( name: 'tag', controller: 'TagController');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
