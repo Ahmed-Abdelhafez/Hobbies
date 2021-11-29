@@ -46,7 +46,7 @@ class TagController extends Controller
         ]);
         $tag = new Tag([
             'name' => $request->name,
-            'tag' => $request->tag,
+            'style' => $request->style,
         ]);
         $tag->save();
         return $this->index()->with([
@@ -73,7 +73,9 @@ class TagController extends Controller
      */
     public function edit(Tag $tag)
     {
-        //
+        return view(view: 'tag.edit')->with([
+            'tag' => $tag
+        ]);
     }
 
     /**
@@ -85,7 +87,17 @@ class TagController extends Controller
      */
     public function update(UpdateTagRequest $request, Tag $tag)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:3',
+            'style' => 'required|min:3',
+        ]);
+        $tag->update([
+            'name' => $request->name,
+            'style' => $request->style,
+        ]);
+        return $this->index()->with([
+            'message_success' => 'The tag <b>' . $tag->name . '</b> was updated.',
+        ]);
     }
 
     /**
@@ -96,6 +108,10 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-        //
+        $oldName = $tag->name;
+        $tag->delete();
+        return $this->index()->with([
+            'message_success' => 'The tag <b>' . $oldName . '</b> was deleted.',
+        ]);
     }
 }
