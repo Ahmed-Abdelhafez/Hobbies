@@ -14,7 +14,8 @@ class HobbyFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->realText(maxNbChars:30),
+            'description' => $this->faker->realText(),
         ];
     }
 }

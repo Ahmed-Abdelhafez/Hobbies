@@ -10,6 +10,12 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+
+    public function hobbies(){
+        return $this->hasMany('App\Models\Hobby');
+    }
+
+
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
