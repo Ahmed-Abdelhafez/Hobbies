@@ -22,10 +22,17 @@ Route::get('/info', function () {
     return view('infoPage');
 });
 
-Route::resource( name: 'hobby', controller: 'HobbyController');
+Route::resource('hobby', 'HobbyController');
 
-Route::resource( name: 'tag', controller: 'TagController');
+Route::resource('tag', 'TagController');
+
+Route::resource('user', 'UserController');
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/hobby/tag/{tag_id}',  [App\Http\Controllers\hobbyTagController::class, 'getFilteredHobbies'])->name('tag_hobby');
+
+//Attach and Detach Tags
+Route::get('/hobby/{hobby_id}/tag/{tag_id}/attach',  [App\Http\Controllers\hobbyTagController::class, 'attachTag']);
+Route::get('/hobby/{hobby_id}/tag/{tag_id}/detach',  [App\Http\Controllers\hobbyTagController::class, 'detachTag']);
