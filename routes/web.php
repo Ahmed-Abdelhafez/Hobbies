@@ -1,5 +1,5 @@
 <?php
-
+header('Access-Control-Allow-Origin: *');
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +20,10 @@ Route::get('/', function () {
 
 Route::get('/info', function () {
     return view('infoPage');
+});
+
+Route::get('/swagger', function () {
+    return view('doc/swagger/index');
 });
 
 Route::resource('hobby', 'HobbyController');

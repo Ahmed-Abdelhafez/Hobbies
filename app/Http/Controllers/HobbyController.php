@@ -1,6 +1,13 @@
 <?php
 
+
 namespace App\Http\Controllers;
+
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Info(title="Hobbies API", version="1.0")
+ */
 
 use App\Models\Hobby;
 use App\Http\Requests\StoreHobbyRequest;
@@ -14,19 +21,32 @@ class HobbyController extends Controller
     {
         $this->middleware('auth')->except(['index', 'show']);
     }
+
+
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *      path=":8000/hobby",
+     *      operationId="getHobbiesList",
+     *      tags={"Hobbies"},
+     *      summary="Get list of hobbies",
+     *      description="Returns list of hobbies",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     * )
      */
+
+
     public function index()
     {
         //$hobbies = Hobby::all();
         $hobbies = Hobby::orderBy('created_at', 'DESC')->paginate(10);
-        
-        return view(view: 'hobby.index')->with([
-            'hobbies' => $hobbies
-        ]);
+        //return $hobbies;
+         return view(view: 'hobby.index')->with([
+             'hobbies' => $hobbies
+         ]);
     }
 
     /**
@@ -34,6 +54,8 @@ class HobbyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+
     public function create()
     {
         return view(view: 'hobby.create');
@@ -45,6 +67,40 @@ class HobbyController extends Controller
      * @param  \App\Http\Requests\StoreHobbyRequest  $request
      * @return \Illuminate\Http\Response
      */
+
+    /**
+     * @OA\Post(
+     *      path=":8000/hobby/create",
+     *      operationId="CreateHobby",
+     *      tags={"Hobbies"},
+     *      summary="Add new Hobby",
+     *      description="User Add new hobby",
+     *      @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                  required={"name", "description"},
+     *                 @OA\Property(
+     *                     property="name",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="description",
+     *                     type="string",
+     *                 )),   
+     *      ),
+     * ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="This User dosen't exist.",
+     *       ),   
+     * )
+     */
+
     public function store(StoreHobbyRequest $request)
     {
         $request->validate([
@@ -57,9 +113,10 @@ class HobbyController extends Controller
             'user_id' => auth()->id()
         ]);
         $hobby->save();
-        return redirect('/hobby/' . $hobby->id)->with([
-            'message_warning' => 'Please assign some tags now.',
-        ]);
+        // return redirect('/hobby/' . $hobby->id)->with([
+        //     'message_warning' => 'Please assign some tags now.',
+        // ]);
+        return $hobby;
     }
 
     /**

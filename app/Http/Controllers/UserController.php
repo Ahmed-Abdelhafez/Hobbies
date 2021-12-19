@@ -45,16 +45,40 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
+    /**
+     * @OA\Get(
+     *      path=":8000/user/{userId}",
+     *      operationId="getUser",
+     *      tags={"users"},
+     *      summary="Get User By Id",
+     *      description="Returns User information",
+     *      @OA\Parameter(
+     *         in="path",
+     *         name="userId",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="This User dosen't exist.",
+     *       ),   
+     * )
+     */
     public function show(User $user)
     {
         $hobbies = Hobby::select()
-        ->where('user_id', $user->id)
-        ->orderBy('updated_at', "DESC")
-        ->get();
+            ->where('user_id', $user->id)
+            ->orderBy('updated_at', "DESC")
+            ->get();
         return view(view: 'user.show')->with([
             'user' => $user,
             'hobbies' => $hobbies
         ]);
+        //return [$user, $hobbies];
     }
 
     /**
