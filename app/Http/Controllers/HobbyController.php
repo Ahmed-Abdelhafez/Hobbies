@@ -44,9 +44,9 @@ class HobbyController extends Controller
         //$hobbies = Hobby::all();
         $hobbies = Hobby::orderBy('created_at', 'DESC')->paginate(10);
         //return $hobbies;
-         return view(view: 'hobby.index')->with([
-             'hobbies' => $hobbies
-         ]);
+        return view(view: 'hobby.index')->with([
+            'hobbies' => $hobbies
+        ]);
     }
 
     /**
@@ -70,7 +70,7 @@ class HobbyController extends Controller
 
     /**
      * @OA\Post(
-     *      path=":8000/hobby/create",
+     *      path=":8000/hobby",
      *      operationId="CreateHobby",
      *      tags={"Hobbies"},
      *      summary="Add new Hobby",
@@ -87,7 +87,11 @@ class HobbyController extends Controller
      *                 @OA\Property(
      *                     property="description",
      *                     type="string",
-     *                 )),   
+     *                 ),
+     *                 @OA\Property(
+     *                     property="user_id",
+     *                     type="integer",
+     *                 )),     
      *      ),
      * ),
      *      @OA\Response(
