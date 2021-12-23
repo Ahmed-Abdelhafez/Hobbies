@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use OpenApi\Annotations as OA;
@@ -14,6 +13,7 @@ use App\Http\Requests\StoreHobbyRequest;
 use App\Http\Requests\UpdateHobbyRequest;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Session;
+use Intervention\Image\Facades\Image;
 
 class HobbyController extends Controller
 {
@@ -21,8 +21,6 @@ class HobbyController extends Controller
     {
         $this->middleware('auth')->except(['index', 'show']);
     }
-
-
 
     /**
      * @OA\Get(
@@ -38,7 +36,6 @@ class HobbyController extends Controller
      * )
      */
 
-
     public function index()
     {
         //$hobbies = Hobby::all();
@@ -49,25 +46,10 @@ class HobbyController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-
-
     public function create()
     {
         return view(view: 'hobby.create');
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreHobbyRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-
     /**
      * @OA\Post(
      *      path=":8000/hobby",
@@ -110,6 +92,7 @@ class HobbyController extends Controller
         $request->validate([
             'name' => 'required|min:3',
             'description' => 'required|min:7',
+            'image' => 'mimes:jpg,jpeg,bmp,png,gif'
         ]);
         $hobby = new Hobby([
             'name' => $request->name,
@@ -117,18 +100,15 @@ class HobbyController extends Controller
             'user_id' => auth()->id()
         ]);
         $hobby->save();
-        // return redirect('/hobby/' . $hobby->id)->with([
-        //     'message_warning' => 'Please assign some tags now.',
-        // ]);
-        return $hobby;
+        if ($request->image) {
+            $this->saveImages($request->image, $hobby->id);
+        }
+        return redirect('/hobby/' . $hobby->id)->with([
+            'message_warning' => 'Please assign some tags now.',
+        ]);
+        //return $hobby;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Hobby  $hobby
-     * @return \Illuminate\Http\Response
-     */
     public function show(Hobby $hobby)
     {
         $allTags = Tag::all();
@@ -143,32 +123,26 @@ class HobbyController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Hobby  $hobby
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Hobby $hobby)
     {
         return view(view: 'hobby.edit')->with([
-            'hobby' => $hobby
+            'hobby' => $hobby,
+            'message_success' => Session::get('message_success'),
+            'message_warning' => Session::get('message_warning')
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateHobbyRequest  $request
-     * @param  \App\Models\Hobby  $hobby
-     * @return \Illuminate\Http\Response
-     */
     public function update(UpdateHobbyRequest $request, Hobby $hobby)
     {
         $request->validate([
             'name' => 'required|min:3',
             'description' => 'required|min:7',
+            'image' => 'mimes:jpg,jpeg,bmp,png,gif',
         ]);
+
+        if ($request->image) {
+          $this->saveImages($request->image, $hobby->id);
+        }
         $hobby->update([
             'name' => $request->name,
             'description' => $request->description,
@@ -178,18 +152,40 @@ class HobbyController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Hobby  $hobby
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Hobby $hobby)
     {
         $oldName = $hobby->name;
         $hobby->delete();
         return $this->index()->with([
             'message_success' => 'The hobby <b>' . $oldName . '</b> was deleted.',
+        ]);
+    }
+
+    public function saveImages($imagInput, $hobby_id)
+    {
+        $image = Image::make($imagInput);
+        if ($image->width() > $image->height()) {
+            $image->widen(1400)
+                ->save(public_path() . "/img/hobbies/" . $hobby_id . '_large.jpg')
+                ->widen(60)
+                ->save(public_path() . "/img/hobbies/" . $hobby_id . '_thumb.jpg');
+        } else {
+            $image->heighten(900)
+                ->save(public_path() . "/img/hobbies/" . $hobby_id . '_large.jpg')
+                ->heighten(60)
+                ->save(public_path() . "/img/hobbies/" . $hobby_id . '_thumb.jpg');
+        }
+    }
+
+    public function deleteImages($hobby_id)
+    {
+        if (file_exists(public_path() . "/img/hobbies/" . $hobby_id . '_large.jpg'))
+            unlink(public_path() . "/img/hobbies/" . $hobby_id . '_large.jpg');
+        if (file_exists(public_path() . "/img/hobbies/" . $hobby_id . '_thumb.jpg'))
+            unlink(public_path() . "/img/hobbies/" . $hobby_id . '_thumb.jpg');
+
+        return back()->with([
+            'message_success' => 'The Image was deleted.',
         ]);
     }
 }

@@ -31,10 +31,12 @@
                                 @endif
                             </div>
                             <div class="col-md-3">
-                                <a href="public/img/400x300.jpg" data-lightbox="400x300.jpg" data-title="{{ $hobby->name }}">
-                                    <img class="img-fluid" src="/img/400x300.jpg" alt="">
+                                @if (file_exists('img/hobbies/' . $hobby->id . '_large.jpg'))
+                                <a href="/img/hobbies/{{ $hobby->id }}_large.jpg" data-lightbox="/img/hobbies/{{ $hobby->id }}_large.jpg" data-title="{{ $hobby->name }}">
+                                    <img class="img-fluid" src="/img/hobbies/{{ $hobby->id }}_large.jpg" alt="">
                                 </a>
                                 <i class="fa fa-search-plus"></i> Click image to enlarge
+                                @endif
                             </div>
                         </div>
                     </div>

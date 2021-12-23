@@ -5,46 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Hobby;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Session;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
     /**
      * @OA\Get(
      *      path=":8000/user/{userId}",
@@ -81,37 +46,58 @@ class UserController extends Controller
         //return [$user, $hobbies];
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
     public function edit(User $user)
     {
-        //
+        return view(view: 'user.edit')->with([
+            'user' => $user,
+            'message_success' => Session::get('message_success'),
+            'message_warning' => Session::get('message_warning')
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, User $user)
-    {
-        //
+    public function update(Request $request, User $user){
+        $request->validate([
+            'motto' => 'required|min:3',
+            'image' => 'mimes:jpg,jpeg,bmp,png,gif',
+        ]);
+
+        if ($request->image) {
+          $this->saveImages($request->image, $user->id);
+        }
+        $user->update([
+            'motto' => $request->motto,
+            'about_me' => $request['about_me'],
+        ]);
+        return redirect('/home')->with([
+            'message_success' => 'Your profile updated successfully.',
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $user)
+    public function saveImages($imagInput, $user_id)
     {
-        //
+        $image = Image::make($imagInput);
+        if ($image->width() > $image->height()) {
+            $image->widen(500)
+                ->save(public_path() . "/img/users/" . $user_id . '_large.jpg')
+                ->widen(60)
+                ->save(public_path() . "/img/users/" . $user_id . '_thumb.jpg');
+        } else {
+            $image->heighten(500)
+                ->save(public_path() . "/img/users/" . $user_id . '_large.jpg')
+                ->heighten(60)
+                ->save(public_path() . "/img/users/" . $user_id . '_thumb.jpg');
+        }
+    }
+
+    public function deleteImages($user_id)
+    {
+        if (file_exists(public_path() . "/img/users/" . $user_id . '_large.jpg'))
+            unlink(public_path() . "/img/users/" . $user_id . '_large.jpg');
+        if (file_exists(public_path() . "/img/users/" . $user_id . '_thumb.jpg'))
+            unlink(public_path() . "/img/users/" . $user_id . '_thumb.jpg');
+
+        return back()->with([
+            'message_success' => 'The Image was deleted.',
+        ]);
     }
 }
