@@ -8,6 +8,12 @@ use App\Http\Requests\UpdateTagRequest;
 
 class TagController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index']);
+        $this->middleware('admin')->except(['index']);
+    }
+
     /**
      * Display a listing of the resource.
      *
