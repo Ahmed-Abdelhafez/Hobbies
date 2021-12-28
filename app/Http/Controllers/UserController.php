@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Hobby;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Session;
 
@@ -53,6 +54,8 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        abort_unless(Gate::allows('update', $user), 403);
+
         return view(view: 'user.edit')->with([
             'user' => $user,
             'message_success' => Session::get('message_success'),
@@ -61,6 +64,8 @@ class UserController extends Controller
     }
 
     public function update(Request $request, User $user){
+        abort_unless(Gate::allows('update', $user), 403);
+        
         $request->validate([
             'motto' => 'required|min:3',
             'image' => 'mimes:jpg,jpeg,bmp,png,gif',

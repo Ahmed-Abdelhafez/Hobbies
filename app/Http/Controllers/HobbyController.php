@@ -12,6 +12,7 @@ use App\Models\Hobby;
 use App\Http\Requests\StoreHobbyRequest;
 use App\Http\Requests\UpdateHobbyRequest;
 use App\Models\Tag;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
 use Intervention\Image\Facades\Image;
 
@@ -125,6 +126,7 @@ class HobbyController extends Controller
 
     public function edit(Hobby $hobby)
     {
+        abort_unless(Gate::allows('update', $hobby), 403);
         return view(view: 'hobby.edit')->with([
             'hobby' => $hobby,
             'message_success' => Session::get('message_success'),
@@ -134,6 +136,7 @@ class HobbyController extends Controller
 
     public function update(UpdateHobbyRequest $request, Hobby $hobby)
     {
+        abort_unless(Gate::allows('update', $hobby), 403);
         $request->validate([
             'name' => 'required|min:3',
             'description' => 'required|min:7',
@@ -154,6 +157,7 @@ class HobbyController extends Controller
 
     public function destroy(Hobby $hobby)
     {
+        abort_unless(Gate::allows('delete', $hobby), 403);
         $oldName = $hobby->name;
         $hobby->delete();
         return $this->index()->with([

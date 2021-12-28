@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tag;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
+use Illuminate\Support\Facades\Gate;
 
 class TagController extends Controller
 {
@@ -79,6 +80,7 @@ class TagController extends Controller
      */
     public function edit(Tag $tag)
     {
+        abort_unless(Gate::allows('update', $tag), 403);
         return view(view: 'tag.edit')->with([
             'tag' => $tag
         ]);
@@ -93,6 +95,7 @@ class TagController extends Controller
      */
     public function update(UpdateTagRequest $request, Tag $tag)
     {
+        abort_unless(Gate::allows('update', $tag), 403);
         $request->validate([
             'name' => 'required|min:3',
             'style' => 'required|min:3',
@@ -114,6 +117,7 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
+        abort_unless(Gate::allows('delete', $tag), 403);
         $oldName = $tag->name;
         $tag->delete();
         return $this->index()->with([

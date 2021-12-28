@@ -2,15 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class TagPolicy
+class UserPolicy
 {
     use HandlesAuthorization;
 
-    
     public function before($user, $ability){
         if($user->role == 'admin'){
             return true;
@@ -32,12 +30,12 @@ class TagPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Tag  $tag
+     * @param  \App\Models\User  $model
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Tag $tag)
+    public function view(User $user, User $model)
     {
-        return false;
+        //
     }
 
     /**
@@ -48,41 +46,41 @@ class TagPolicy
      */
     public function create(User $user)
     {
-        return false;
+        //
     }
 
     /**
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Tag  $tag
+     * @param  \App\Models\User  $model
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Tag $tag)
+    public function update(User $user, User $model)
     {
-        return false;
+        return $user->id === $model->id;
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Tag  $tag
+     * @param  \App\Models\User  $model
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Tag $tag)
+    public function delete(User $user, User $model)
     {
-        return false;
+        return $user->id === $model->id;
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Tag  $tag
+     * @param  \App\Models\User  $model
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Tag $tag)
+    public function restore(User $user, User $model)
     {
         //
     }
@@ -91,10 +89,10 @@ class TagPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Tag  $tag
+     * @param  \App\Models\User  $model
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Tag $tag)
+    public function forceDelete(User $user, User $model)
     {
         //
     }
